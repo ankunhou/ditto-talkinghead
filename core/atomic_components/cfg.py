@@ -1,12 +1,13 @@
 import os
 import pickle
+
 import numpy as np
 
 
 def load_pkl(pkl):
     with open(pkl, "rb") as f:
         return pickle.load(f)
-    
+
 
 def parse_cfg(cfg_pkl, data_root, replace_cfg=None):
 
@@ -57,7 +58,7 @@ def parse_cfg(cfg_pkl, data_root, replace_cfg=None):
     stitch_network_cfg = base_cfg["stitch_network_cfg"]
     warp_network_cfg = base_cfg["warp_network_cfg"]
     decoder_cfg = base_cfg["decoder_cfg"]
-    
+
     condition_handler_cfg = {
         k: audio2motion_cfg[k]
         for k in [
@@ -82,10 +83,12 @@ def parse_cfg(cfg_pkl, data_root, replace_cfg=None):
 
     w2f_type = audio2motion_cfg["w2f_type"]
     wav2feat_cfg = {
-        "w2f_cfg": base_cfg["hubert_cfg"] if w2f_type == "hubert" else base_cfg["wavlm_cfg"],
+        "w2f_cfg": (
+            base_cfg["hubert_cfg"] if w2f_type == "hubert" else base_cfg["wavlm_cfg"]
+        ),
         "w2f_type": w2f_type,
     }
-    
+
     return [
         avatar_registrar_cfg,
         condition_handler_cfg,

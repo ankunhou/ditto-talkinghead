@@ -1,6 +1,5 @@
 from ..models.decoder import Decoder
 
-
 """
 # __init__
 decoder_cfg = {
@@ -8,6 +7,7 @@ decoder_cfg = {
     "device": "cuda",
 }
 """
+
 
 class DecodeF3D:
     def __init__(
@@ -19,4 +19,3 @@ class DecodeF3D:
     def __call__(self, f_s):
         out = self.decoder(f_s)
         return out
-    

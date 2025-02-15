@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+
 from ..utils.blend import blend_images_cy
 from ..utils.get_mask import get_mask
 
@@ -28,7 +29,7 @@ class PutBackNumpy:
         result = np.clip(result, 0, 255)
         result = result.astype(np.uint8)
         return result
-    
+
 
 class PutBack:
     def __init__(
@@ -39,9 +40,12 @@ class PutBack:
             mask = get_mask(512, 512, 0.9, 0.9)
             mask = np.concatenate([mask] * 3, 2)
         else:
-            mask = cv2.imread(mask_template_path, cv2.IMREAD_COLOR).astype(np.float32) / 255.0
+            mask = (
+                cv2.imread(mask_template_path, cv2.IMREAD_COLOR).astype(np.float32)
+                / 255.0
+            )
 
-        self.mask_ori_float = np.ascontiguousarray(mask)[:,:,0]
+        self.mask_ori_float = np.ascontiguousarray(mask)[:, :, 0]
         self.result_buffer = None
 
     def __call__(self, frame_rgb, render_image, M_c2o):

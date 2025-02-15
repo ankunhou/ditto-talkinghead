@@ -1,10 +1,11 @@
-import librosa
 import math
 import os
-import numpy as np
-import random
-import torch
 import pickle
+import random
+
+import librosa
+import numpy as np
+import torch
 
 from stream_pipeline_offline import StreamSDK
 
@@ -24,7 +25,13 @@ def load_pkl(pkl):
         return pickle.load(f)
 
 
-def run(SDK: StreamSDK, audio_path: str, source_path: str, output_path: str, more_kwargs: str | dict = {}):
+def run(
+    SDK: StreamSDK,
+    audio_path: str,
+    source_path: str,
+    output_path: str,
+    more_kwargs: str | dict = {},
+):
 
     if isinstance(more_kwargs, str):
         more_kwargs = load_pkl(more_kwargs)
@@ -44,12 +51,16 @@ def run(SDK: StreamSDK, audio_path: str, source_path: str, output_path: str, mor
     online_mode = SDK.online_mode
     if online_mode:
         chunksize = run_kwargs.get("chunksize", (3, 5, 2))
-        audio = np.concatenate([np.zeros((chunksize[0] * 640,), dtype=np.float32), audio], 0)
+        audio = np.concatenate(
+            [np.zeros((chunksize[0] * 640,), dtype=np.float32), audio], 0
+        )
         split_len = int(sum(chunksize) * 0.04 * 16000) + 80  # 6480
         for i in range(0, len(audio), chunksize[1] * 640):
-            audio_chunk = audio[i:i + split_len]
+            audio_chunk = audio[i : i + split_len]
             if len(audio_chunk) < split_len:
-                audio_chunk = np.pad(audio_chunk, (0, split_len - len(audio_chunk)), mode="constant")
+                audio_chunk = np.pad(
+                    audio_chunk, (0, split_len - len(audio_chunk)), mode="constant"
+                )
             SDK.run_chunk(audio_chunk, chunksize)
     else:
         aud_feat = SDK.wav2feat.wav2feat(audio)
@@ -65,9 +76,20 @@ def run(SDK: StreamSDK, audio_path: str, source_path: str, output_path: str, mor
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_root", type=str, default="./checkpoints/ditto_trt_Ampere_Plus", help="path to trt data_root")
-    parser.add_argument("--cfg_pkl", type=str, default="./checkpoints/ditto_cfg/v0.4_hubert_cfg_trt.pkl", help="path to cfg_pkl")
+    parser.add_argument(
+        "--data_root",
+        type=str,
+        default="./checkpoints/ditto_trt_Ampere_Plus",
+        help="path to trt data_root",
+    )
+    parser.add_argument(
+        "--cfg_pkl",
+        type=str,
+        default="./checkpoints/ditto_cfg/v0.4_hubert_cfg_trt.pkl",
+        help="path to cfg_pkl",
+    )
 
     parser.add_argument("--audio_path", type=str, help="path to input wav")
     parser.add_argument("--source_path", type=str, help="path to input image")
@@ -75,14 +97,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # init sdk
-    data_root = args.data_root   # model dir
-    cfg_pkl = args.cfg_pkl     # cfg pkl
+    data_root = args.data_root  # model dir
+    cfg_pkl = args.cfg_pkl  # cfg pkl
     SDK = StreamSDK(cfg_pkl, data_root)
 
     # input args
-    audio_path = args.audio_path    # .wav
-    source_path = args.source_path   # video|image
-    output_path = args.output_path   # .mp4
+    audio_path = args.audio_path  # .wav
+    source_path = args.source_path  # video|image
+    output_path = args.output_path  # .mp4
 
     # run
     # seed_everything(1024)

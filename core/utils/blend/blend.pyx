@@ -1,6 +1,8 @@
 #cython: language_level=3
 import numpy as np
+
 cimport numpy as np
+
 
 cdef extern from "blend_impl.h":
     void _blend_images_cy_impl(

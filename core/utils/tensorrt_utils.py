@@ -1,12 +1,11 @@
 import ctypes
+import os
 from collections import OrderedDict
 from typing import Type
-from cuda import cuda, cudart, nvrtc
+
 import numpy as np
 import torch
-import ctypes
-import os
-import torch
+from cuda import cuda, cudart, nvrtc
 
 try:
     import tensorrt as trt

@@ -1,4 +1,5 @@
 from enum import Enum
+
 import numpy as np
 
 from ..utils.load_model import load_model
@@ -55,7 +56,9 @@ def bbox_to_roi(
 
 
 class Landmark478:
-    def __init__(self, blaze_face_model_path="", face_mesh_model_path="", device="cuda", **kwargs):
+    def __init__(
+        self, blaze_face_model_path="", face_mesh_model_path="", device="cuda", **kwargs
+    ):
         if kwargs.get("force_ori_type", False):
             assert "task_path" in kwargs
             kwargs["module_name"] = "Landmark478"
