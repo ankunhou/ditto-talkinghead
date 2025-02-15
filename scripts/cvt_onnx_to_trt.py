@@ -29,16 +29,9 @@ def onnx_to_trt(onnx_file, trt_file, fp16=False, more_cmd=None):
 def onnx_to_trt_for_gridsample(
     onnx_file, trt_file, fp16=False, plugin_file="./libgrid_sample_3d_plugin.so"
 ):
-    import ctypes
-
     import tensorrt as trt
 
     logger = trt.Logger(trt.Logger.INFO)
-    ctypes.CDLL(
-        plugin_file,
-        mode=ctypes.RTLD_GLOBAL,
-        winmode=0,
-    )
     trt.init_libnvinfer_plugins(logger, "")
     plugin_libs = [plugin_file]
 
@@ -46,8 +39,8 @@ def onnx_to_trt_for_gridsample(
     engine_path = trt_file
 
     builder = trt.Builder(logger)
-    # for pluginlib in plugin_libs:
-    #     builder.get_plugin_registry().load_library(pluginlib)
+    for pluginlib in plugin_libs:
+        builder.get_plugin_registry().load_library(pluginlib)
     network = builder.create_network(
         1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
     )
@@ -116,17 +109,9 @@ def onnx_to_trt_for_gridsample(
 def main(onnx_dir, trt_dir, grid_sample_plugin_file=""):
     names = [i[:-5] for i in os.listdir(onnx_dir) if i.endswith(".onnx")]
     for name in names:
-        if name == "warp_network_ori":
-            continue
-
         print("=" * 20, f"{name} start", "=" * 20)
 
-        fp16 = (
-            False
-            if name in {"motion_extractor", "hubert", "wavlm"}
-            or name.startswith("lmdm")
-            else True
-        )
+        fp16 = False if name in {"motion_extractor", "hubert", "wavlm"} else True
 
         more_cmd = None
         if name == "wavlm":
@@ -172,8 +157,5 @@ if __name__ == "__main__":
     assert os.path.isdir(onnx_dir)
     os.makedirs(trt_dir, exist_ok=True)
 
-    grid_sample_plugin_file = os.path.abspath(
-        os.path.join(onnx_dir, "grid_sample_3d_plugin.dll")
-    )
-    print(f"grid_sample_plugin_file: {grid_sample_plugin_file}")
+    grid_sample_plugin_file = os.path.join(onnx_dir, "libgrid_sample_3d_plugin.so")
     main(onnx_dir, trt_dir, grid_sample_plugin_file)
